@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import com.op.eureka.user.data.UserEntity;
 
 public interface UserRepository extends CrudRepository<UserEntity, Long> {
-
+UserEntity findByEmail(String email);
 }

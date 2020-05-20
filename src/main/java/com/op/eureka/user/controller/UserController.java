@@ -8,6 +8,7 @@ import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,12 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.op.eureka.user.data.UserEntity;
 import com.op.eureka.user.requestmodel.UserRequest;
+import com.op.eureka.user.response.CreateuserResponse;
 import com.op.eureka.user.services.UserService;
 import com.op.eureka.user.shared.UserDTO;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
+	
+	//========login api url ====> http://localhost:8081/users/users/login
 	@Autowired
 	private Environment env;
 	@Autowired
@@ -34,14 +38,18 @@ public class UserController {
 		
 	}
 	
-	@PostMapping
-	public ResponseEntity createUser(@Valid @RequestBody UserRequest userRequest) {
+	@PostMapping(consumes = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE},
+			produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
+	public ResponseEntity<CreateuserResponse>createUser(@Valid @RequestBody UserRequest userRequest) {
 		ModelMapper modelMapper = new ModelMapper();
+		System.out.println(" "+env.getProperty("local.server.port"));
 	    modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 	   
 		UserDTO userDTO = modelMapper.map(userRequest,UserDTO.class);
-		userService.createUser(userDTO);
-		return new ResponseEntity(HttpStatus.CREATED);
+		CreateuserResponse res = new CreateuserResponse();
+		UserDTO createuser =	userService.createUser(userDTO);
+		CreateuserResponse returnvalue  =modelMapper.map(createuser,CreateuserResponse.class);
+		return  ResponseEntity.status(HttpStatus.CREATED).body(returnvalue);
 		
 	}
 }
